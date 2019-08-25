@@ -46,7 +46,8 @@ class JustPay extends PaymentModule
             'JUSTPAY_PUBLIC_KEY_PRODUCTION',
             'JUSTPAY_SECURE_KEY_PRODUCTION',
             'JUSTPAY_ENDPOINT_URL_PRODUCTION',
-            'JUSTPAY_HANDLE_PAYMENT_METHOD')
+            'JUSTPAY_HANDLE_PAYMENT_METHOD',
+            'JUSTPAY_EXPIRATION_TIME')
         );
 
         if($config['JUSTPAY_LIVE_MODE']){
@@ -60,6 +61,7 @@ class JustPay extends PaymentModule
         }
 
         $this->handle_payment = $config['JUSTPAY_HANDLE_PAYMENT_METHOD'];
+        $this->expiration_time = $config['JUSTPAY_EXPIRATION_TIME'];
 
     }
 
@@ -89,7 +91,8 @@ class JustPay extends PaymentModule
             Configuration::updateValue('JUSTPAY_PUBLIC_KEY_PRODUCTION', '') &&
             Configuration::updateValue('JUSTPAY_SECURE_KEY_PRODUCTION', '') &&
             Configuration::updateValue('JUSTPAY_ENDPOINT_URL_PRODUCTION', '') &&
-            Configuration::updateValue('JUSTPAY_HANDLE_PAYMENT_METHOD', 'redirection');
+            Configuration::updateValue('JUSTPAY_HANDLE_PAYMENT_METHOD', 'redirection') &&
+            Configuration::updateValue('JUSTPAY_EXPIRATION_TIME', 120);
     }
 
     public function uninstall()
@@ -105,7 +108,8 @@ class JustPay extends PaymentModule
             Configuration::deleteByName('JUSTPAY_PUBLIC_KEY_PRODUCTION') &&
             Configuration::deleteByName('JUSTPAY_SECURE_KEY_PRODUCTION') &&
             Configuration::deleteByName('JUSTPAY_ENDPOINT_URL_PRODUCTION') &&
-            Configuration::deleteByName('JUSTPAY_HANDLE_PAYMENT_METHOD');
+            Configuration::deleteByName('JUSTPAY_HANDLE_PAYMENT_METHOD') &&
+            Configuration::deleteByName('JUSTPAY_EXPIRATION_TIME');
     }
 
     public function getContent()
@@ -147,7 +151,12 @@ class JustPay extends PaymentModule
     {
         $form_values = $this->_getConfigFormValues();
         foreach (array_keys($form_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
+
+            if($key === 'JUSTPAY_EXPIRATION_TIME' && Tools::getValue($key) < 30){
+                Configuration::updateValue($key, 30);
+            }else{
+                Configuration::updateValue($key, Tools::getValue($key));
+            }
         }
     }
 
@@ -162,7 +171,8 @@ class JustPay extends PaymentModule
             'JUSTPAY_PUBLIC_KEY_PRODUCTION' => Configuration::get('JUSTPAY_PUBLIC_KEY_PRODUCTION'),
             'JUSTPAY_SECURE_KEY_PRODUCTION' => Configuration::get('JUSTPAY_SECURE_KEY_PRODUCTION'),
             'JUSTPAY_ENDPOINT_URL_PRODUCTION' => Configuration::get('JUSTPAY_ENDPOINT_URL_PRODUCTION'),
-            'JUSTPAY_HANDLE_PAYMENT_METHOD' => Configuration::get('JUSTPAY_HANDLE_PAYMENT_METHOD')
+            'JUSTPAY_HANDLE_PAYMENT_METHOD' => Configuration::get('JUSTPAY_HANDLE_PAYMENT_METHOD'),
+            'JUSTPAY_EXPIRATION_TIME' => Configuration::get('JUSTPAY_EXPIRATION_TIME')
         );
     }
 
@@ -207,11 +217,13 @@ class JustPay extends PaymentModule
 
         $cart = $params['cart'];
 
+        $currency = $this->getSingleCurrency($cart->id_currency);
+
         $this->smarty->assign(array(
-            'imgOnline' => $this->_path . 'views/img/online.png',
-            'imgCash' => $this->_path . 'views/img/cash.png',
-            'imgCards' => $this->_path . 'views/img/cards.jpg',
-            'currency' => $this->getSingleCurrency($cart->id_currency),
+            'imgOnline' => $this->_path . "views/img/online-$currency.png",
+            'imgCash' => $this->_path . "views/img/cash-$currency.png",
+            'imgCards' => $this->_path . "views/img/cards-$currency.png",
+            'currency' => $currency,
             'currenciesOnline' => self::ACCEPT_CURRENCIES_PAYMENT_ONLINE,
             'currenciesCash' => self::ACCEPT_CURRENCIES_PAYMENT_CASH,
             'currenciesCards' => self::ACCEPT_CURRENCIES_PAYMENT_CARDS
@@ -247,12 +259,11 @@ class JustPay extends PaymentModule
             $time = date('Y-m-d\TH:i:s');
             $channel = Tools::getValue('payMethod');
             $transId = $idOrder . "_" . time();
-            $timeExpired = '120';
             $urlOk = Context::getContext()->link->getModuleLink('justpay', "success");
             $urlError = Context::getContext()->link->getModuleLink('justpay', "error", ['idOrder' => $idOrder]);
             $urlFinalizar = Context::getContext()->link->getModuleLink('justpay', "finalize");
 
-            $data_sign = "$this->public_key$time$amount$currency$transId$timeExpired$urlOk$urlError$channel$this->secure_key";
+            $data_sign = "$this->public_key$time$amount$currency$transId$this->expiration_time$urlOk$urlError$channel$this->secure_key";
             $signature = hash('sha256', $data_sign);
 
             $data = [
@@ -262,7 +273,7 @@ class JustPay extends PaymentModule
                 'amount' => $amount,
                 'currency' => $currency,
                 'trans_id' => $transId,
-                'time_expired' => $timeExpired,
+                'time_expired' => $this->expiration_time,
                 'url_ok' => $urlOk,
                 'url_error' => $urlError,
                 'url_finalizar' => $urlFinalizar,

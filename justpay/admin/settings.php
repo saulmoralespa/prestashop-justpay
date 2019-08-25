@@ -55,6 +55,7 @@ $form['method'] = array(
                 'type' => 'select',
                 'label' => $this->l('Handle payment method'),
                 'name' => 'JUSTPAY_HANDLE_PAYMENT_METHOD',
+                'desc'=> $this->l('Redirection will send the user to the Just Pay checkout, Lightbox remains the user in the store'),
                 'options' => array(
                     'id' => 'id_option',
                     'name' => 'name',
@@ -69,6 +70,12 @@ $form['method'] = array(
                         )
                     )
                 )
+            ),
+            array(
+                'type' => 'text',
+                'label' => $this->l('Expiration time'),
+                'name' => 'JUSTPAY_EXPIRATION_TIME',
+                'desc'=> $this->l('The time allowed in minutes to generate transactions')
             ),
             array(
                 'type' => 'title',
