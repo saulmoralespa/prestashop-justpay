@@ -6,7 +6,7 @@
 	<description><![CDATA[Just Pay Payment Gateway]]></description>
 	<author><![CDATA[Saul Morales Pacheco]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>
-	<confirmUninstall><![CDATA[Are you sure you want to uninstall the module?]]></confirmUninstall>
+	<confirmUninstall><![CDATA[¿Está seguro de que desea desinstalar el módulo?]]></confirmUninstall>
 	<is_configurable>1</is_configurable>
 	<need_instance>1</need_instance>
 	<limited_countries></limited_countries>

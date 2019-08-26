@@ -22,11 +22,11 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-{capture name=path}{l s='Netcommerce iPAY' mod='justpay'}{/capture}
+{capture name=path}{l s='Just Pay' mod='justpay'}{/capture}
 <div class="col-xs-12 col-sm-12 col-md-12">
     <div class="wrap">
         <div id="validation-justpay">
-            <h1 class="page-heading">{l s='RESUMEN DEL PEDIDO' mod='justpay'}</h1>
+            <h1 class="page-heading">{l s='ORDER SUMMARY' mod='justpay'}</h1>
             {assign var='current_step' value='payment'}
             {include file="$tpl_dir./order-steps.tpl"}
             {if $nbProducts <= 0}

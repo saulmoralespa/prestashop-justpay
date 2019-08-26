@@ -43,7 +43,7 @@ class JustPayValidationModuleFrontController extends ModuleFrontController
             }
 
         if (!$authorized)
-            die($this->module->l('This payment method is not available.', 'validation'));
+            die($this->module->l('This payment method is not available', 'validation'));
 
         $customer = new Customer($cart->id_customer);
 
