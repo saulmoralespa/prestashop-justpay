@@ -18,6 +18,10 @@ class JustPay extends PaymentModule
     public $secure_key;
     public $end_point_url;
     public $handle_payment;
+    public $expiration_time;
+    public $title_online;
+    public $title_cash;
+    public $title_cards;
 
     public function __construct()
     {
@@ -47,7 +51,10 @@ class JustPay extends PaymentModule
             'JUSTPAY_SECURE_KEY_PRODUCTION',
             'JUSTPAY_ENDPOINT_URL_PRODUCTION',
             'JUSTPAY_HANDLE_PAYMENT_METHOD',
-            'JUSTPAY_EXPIRATION_TIME')
+            'JUSTPAY_EXPIRATION_TIME',
+            'JUSTPAY_ONLINE_TITLE',
+            'JUSTPAY_CASH_TITLE',
+            'JUSTPAY_CARDS_TITLE')
         );
 
         if($config['JUSTPAY_LIVE_MODE']){
@@ -62,6 +69,9 @@ class JustPay extends PaymentModule
 
         $this->handle_payment = $config['JUSTPAY_HANDLE_PAYMENT_METHOD'];
         $this->expiration_time = $config['JUSTPAY_EXPIRATION_TIME'];
+        $this->title_online = $config['JUSTPAY_ONLINE_TITLE'];
+        $this->title_cash = $config['JUSTPAY_CASH_TITLE'];
+        $this->title_cards = $config['JUSTPAY_CARDS_TITLE'];
 
     }
 
@@ -92,7 +102,10 @@ class JustPay extends PaymentModule
             Configuration::updateValue('JUSTPAY_SECURE_KEY_PRODUCTION', '') &&
             Configuration::updateValue('JUSTPAY_ENDPOINT_URL_PRODUCTION', '') &&
             Configuration::updateValue('JUSTPAY_HANDLE_PAYMENT_METHOD', 'redirection') &&
-            Configuration::updateValue('JUSTPAY_EXPIRATION_TIME', 120);
+            Configuration::updateValue('JUSTPAY_EXPIRATION_TIME', 120) &&
+            Configuration::updateValue('JUSTPAY_ONLINE_TITLE', 'Just Pay Online') &&
+            Configuration::updateValue('JUSTPAY_CASH_TITLE', 'Just Pay Cash') &&
+            Configuration::updateValue('JUSTPAY_CARDS_TITLE', 'Just Pay Cards');
     }
 
     public function uninstall()
@@ -109,7 +122,10 @@ class JustPay extends PaymentModule
             Configuration::deleteByName('JUSTPAY_SECURE_KEY_PRODUCTION') &&
             Configuration::deleteByName('JUSTPAY_ENDPOINT_URL_PRODUCTION') &&
             Configuration::deleteByName('JUSTPAY_HANDLE_PAYMENT_METHOD') &&
-            Configuration::deleteByName('JUSTPAY_EXPIRATION_TIME');
+            Configuration::deleteByName('JUSTPAY_EXPIRATION_TIME') &&
+            Configuration::deleteByName('JUSTPAY_ONLINE_TITLE') &&
+            Configuration::deleteByName('JUSTPAY_CASH_TITLE') &&
+            Configuration::deleteByName('JUSTPAY_CARDS_TITLE');
     }
 
     public function getContent()
@@ -172,7 +188,10 @@ class JustPay extends PaymentModule
             'JUSTPAY_SECURE_KEY_PRODUCTION' => Configuration::get('JUSTPAY_SECURE_KEY_PRODUCTION'),
             'JUSTPAY_ENDPOINT_URL_PRODUCTION' => Configuration::get('JUSTPAY_ENDPOINT_URL_PRODUCTION'),
             'JUSTPAY_HANDLE_PAYMENT_METHOD' => Configuration::get('JUSTPAY_HANDLE_PAYMENT_METHOD'),
-            'JUSTPAY_EXPIRATION_TIME' => Configuration::get('JUSTPAY_EXPIRATION_TIME')
+            'JUSTPAY_EXPIRATION_TIME' => Configuration::get('JUSTPAY_EXPIRATION_TIME'),
+            'JUSTPAY_ONLINE_TITLE' => Configuration::get('JUSTPAY_ONLINE_TITLE'),
+            'JUSTPAY_CASH_TITLE' => Configuration::get('JUSTPAY_CASH_TITLE'),
+            'JUSTPAY_CARDS_TITLE' => Configuration::get('JUSTPAY_CARDS_TITLE')
         );
     }
 
@@ -223,6 +242,9 @@ class JustPay extends PaymentModule
             'imgOnline' => $this->_path . "views/img/online-$currency.png",
             'imgCash' => $this->_path . "views/img/cash-$currency.png",
             'imgCards' => $this->_path . "views/img/cards-$currency.png",
+            'onlineTitle' => $this->title_online,
+            'cashTitle' => $this->title_cash,
+            'cardsTitle' => $this->title_cards,
             'currency' => $currency,
             'currenciesOnline' => self::ACCEPT_CURRENCIES_PAYMENT_ONLINE,
             'currenciesCash' => self::ACCEPT_CURRENCIES_PAYMENT_CASH,
@@ -252,8 +274,9 @@ class JustPay extends PaymentModule
             $amount = $params['order']->getOrdersTotalPaid();
         }
 
+        $idOrder = $order->id_cart;
+
         try{
-            $idOrder = Tools::getValue('id_order');
             $currency = $this->getSingleCurrency($order->id_currency);
 
             $time = date('Y-m-d\TH:i:s');
@@ -324,7 +347,7 @@ class JustPay extends PaymentModule
 
         if(in_array($currency, self::ACCEPT_CURRENCIES_PAYMENT_ONLINE)){
             $online = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
-            $online->setCallToActionText($this->l('Just Pay Online'))
+            $online->setCallToActionText($this->l($this->title_online))
                 ->setAction($this->context->link->getModuleLink($this->name, 'validation', ['payMethod' => 1]))
                 ->setAdditionalInformation($this->fetch('module:justpay/views/templates/front/online.tpl'))
                 ->setLogo(Media::getMediaPath($this->_path."views/img/online-$currency.png"));
@@ -333,7 +356,7 @@ class JustPay extends PaymentModule
 
         if(in_array($currency, self::ACCEPT_CURRENCIES_PAYMENT_CASH)){
             $cash = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
-            $cash->setCallToActionText($this->l('Just Pay Cash'))
+            $cash->setCallToActionText($this->l($this->title_cash))
                 ->setAction($this->context->link->getModuleLink($this->name, 'validation', ['payMethod' => 2]))
                 ->setAdditionalInformation($this->fetch('module:justpay/views/templates/front/cash.tpl'))
                 ->setLogo(Media::getMediaPath($this->_path."views/img/cash-$currency.png"));
@@ -342,7 +365,7 @@ class JustPay extends PaymentModule
 
         if(in_array($currency, self::ACCEPT_CURRENCIES_PAYMENT_CARDS)){
             $cards = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
-            $cards->setCallToActionText($this->l('Just Pay Credit and debit cards'))
+            $cards->setCallToActionText($this->l($this->title_cards))
                 ->setAction($this->context->link->getModuleLink($this->name, 'validation', ['payMethod' => 3]))
                 ->setAdditionalInformation($this->fetch('module:justpay/views/templates/front/cards.tpl'))
                 ->setLogo(Media::getMediaPath($this->_path."views/img/cards-$currency.png"));

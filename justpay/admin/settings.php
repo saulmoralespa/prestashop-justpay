@@ -148,4 +148,62 @@ $form['production'] = array(
     )
 );
 
+$form['justPayOnline'] = array(
+    'form' => array(
+        'legend' => array(
+            'title' => $this->l('Just Pay Online'),
+            'icon' => 'icon-cog'
+        ),
+        'input' => array(
+            array(
+                'type' => 'text',
+                'label' => $this->l('Title'),
+                'name' => 'JUSTPAY_ONLINE_TITLE'
+            )
+        ),
+        'submit' => array(
+            'title' => $this->l('Save')
+        )
+    )
+);
+
+$form['justPayCash'] = array(
+    'form' => array(
+        'legend' => array(
+            'title' => $this->l('Just Pay Cash'),
+            'icon' => 'icon-cog'
+        ),
+        'input' => array(
+            array(
+                'type' => 'text',
+                'label' => $this->l('Title'),
+                'name' => 'JUSTPAY_CASH_TITLE'
+            )
+        ),
+        'submit' => array(
+            'title' => $this->l('Save')
+        )
+    )
+);
+
+$form['justPayCards'] = array(
+    'form' => array(
+        'legend' => array(
+            'title' => $this->l('Just Pay Cards'),
+            'icon' => 'icon-cog'
+        ),
+        'input' => array(
+            array(
+                'type' => 'text',
+                'label' => $this->l('Title'),
+                'name' => 'JUSTPAY_CARDS_TITLE'
+            )
+        ),
+        'submit' => array(
+            'title' => $this->l('Save')
+        )
+    )
+);
+
+
 return $form;
