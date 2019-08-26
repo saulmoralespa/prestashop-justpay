@@ -6,6 +6,8 @@ class JustPaySuccessModuleFrontController extends ModuleFrontController
     {
         parent::initContent();
 
-        $this->setTemplate('success.tpl');
+        $justPay = new JustPay;
+
+        $this->setTemplate($justPay->buildTemplatePath('success'));
     }
 }

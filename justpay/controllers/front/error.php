@@ -11,6 +11,6 @@ class JustPayErrorModuleFrontController extends ModuleFrontController
         if (Tools::getValue('idOrder'))
             $justPay->updateStatusPay(Tools::getValue('idOrder'), 'ERROR');
 
-        $this->setTemplate('error.tpl');
+        $this->setTemplate($justPay->buildTemplatePath('error'));
     }
 }

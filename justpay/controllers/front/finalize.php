@@ -6,6 +6,8 @@ class JustPayFinalizeModuleFrontController extends ModuleFrontController
     {
         parent::initContent();
 
-        $this->setTemplate('finalize.tpl');
+        $justPay = new JustPay;
+
+        $this->setTemplate($justPay->buildTemplatePath('finalize'));
     }
 }

@@ -4,19 +4,19 @@ class JustPayNotifyModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
-        if (!$_REQUEST['amount'] ||
-            !$_REQUEST['channel'] ||
-            !$_REQUEST['currency'] ||
-            !$_REQUEST['signature'] ||
-            !$_REQUEST['time'] ||
-            !$_REQUEST['trans_ID'])
+        if (!Tools::getValue('amount') ||
+            !Tools::getValue('channel') ||
+            !Tools::getValue('currency') ||
+            !Tools::getValue('signature') ||
+            !Tools::getValue('time') ||
+            !Tools::getValue('trans_ID'))
             return;
 
-        $amount = $_REQUEST['amount'];
-        $time = $_REQUEST['time'];
-        $currency = $_REQUEST['currency'];
-        $trans_id = $_REQUEST['trans_ID'];
-        $channel = $_REQUEST['channel'];
+        $amount = Tools::getValue('amount');
+        $time = Tools::getValue('time');
+        $currency = Tools::getValue('currency');
+        $trans_id = Tools::getValue('trans_ID');
+        $channel = Tools::getValue('channel');
         $confirm_transid = $trans_id;
 
         $justPay = new JustPay;

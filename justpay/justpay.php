@@ -430,4 +430,12 @@ class JustPay extends PaymentModule
                 StockAvailable::updateQuantity($product['product_id'], $product['product_attribute_id'], + (int)$product['product_quantity'], $order->id_shop);
         }
     }
+
+    public function buildTemplatePath($name)
+    {
+        if (version_compare(_PS_VERSION_, '1.7', 'lt'))
+            return $name . '.tpl';
+
+        return 'module:justpay/views/templates/front/' . $name . '17.tpl';
+    }
 }
